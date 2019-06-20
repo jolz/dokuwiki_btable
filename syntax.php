@@ -1,9 +1,10 @@
 ﻿<?php
 /**
- * Boolean Table Plugin (Extended/Modified Doodle Plugin)
+ * Boolean Table Plugin 2 (Extended/Modified Doodle Plugin)
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Oliver Horst <oliver.horst@uni-dortmund.de>  
+ * @author     jolZ <jolz@freenet.de>
+ *             Oliver Horst <oliver.horst@uni-dortmund.de>  
  */
 
 if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../').'/');
@@ -21,18 +22,18 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
      */
     function getInfo(){
         return array(
-            'author' => 'Oliver Horst',
-            'email'  => 'oliver.horst@uni-dortmund.de',
-            'date'   => '2007-12-06',
-            'name'   => 'Boolean Table (modified Doodle Plugin)',
-            'desc'   => 'Helps to save/input for example attendance information',
-            'url'    => 'http://wiki.splitbrain.org/plugin:btable',
+            'author' => 'Jolz, Oliver Horst',
+            'email'  => 'jolz@freenet.de',
+            'date'   => '2019-06-20',
+            'name'   => 'Boolean Table 2 (modified Doodle Plugin)',
+            'desc'   => 'Successor of btable plugin, doodle-like polls without authentication.',
+            'url'    => 'http://wiki.splitbrain.org/plugin:btable2',
         );
     }
     
     function getType(){ return 'substition';}
     function getPType(){ return 'block';}
-    function getSort(){ return 168; }
+    function getSort(){ return 167; }
     
     /**
      * Connect pattern to lexer
