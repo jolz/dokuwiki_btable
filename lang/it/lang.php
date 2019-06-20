@@ -1,6 +1,7 @@
 ﻿<?php
 
 $lang['btable_btn_submit'] = 'Invia';
+$lang['btable_btn_change'] = 'Invia';
 $lang['btable_btn_delete'] = 'Cancella tutta la riga';
 $lang['btable_header']     = '';
 $lang['btable_header_del'] = '';

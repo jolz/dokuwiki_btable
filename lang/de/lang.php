@@ -1,6 +1,7 @@
 ﻿<?php
 
 $lang['btable_btn_submit'] = 'Abschicken';
+$lang['btable_btn_change'] = '&Auml;ndern';
 $lang['btable_btn_delete'] = 'komplette Zeile löschen';
 $lang['btable_header']     = '';
 $lang['btable_header_del'] = '';

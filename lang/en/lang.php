@@ -1,6 +1,7 @@
 ﻿<?php
 
 $lang['btable_btn_submit'] = 'Submit';
+$lang['btable_btn_change'] = 'Change';
 $lang['btable_btn_delete'] = 'delete complete row';
 $lang['btable_header']     = '';
 $lang['btable_header_del'] = '';

@@ -46,7 +46,7 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
     /**
      * Handle the match
      */
-    function handle($match, $state, $pos, &$handler){
+    function handle($match, $state, $pos, Doku_Handler $handler){
         
         // strip markup
         $match = substr($match, 8, -9);
@@ -59,6 +59,13 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
             $options = $title;
             $title   = NULL;
         }
+        
+        $matches = array();
+        $opt = "";
+        if (preg_match('#<opt.*?>(.*?)</opt>#u', $options, $matches)) {
+            $opt = $matches[1];
+        }
+               
         
         // split into ids and dates part
         list($first, $second) = preg_split('#(\s|\n|\r)*<\/columns>(\s|\n|\r)*<rows>(\s|\n|\r)*#u', $options);
@@ -80,14 +87,14 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
         }
         
         
-        return array(trim($title), $ids, $dates);
+        return array(trim($title), $ids, $dates, $opt);
     }
     
     
     /**
      * Create output
      */
-    function render($mode, &$renderer, $data) {
+    function render($mode, Doku_Renderer $renderer, $data) {
         
         if ($mode == 'xhtml') {
             
@@ -98,7 +105,7 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
             $conf_groups = trim($this->getConf('btable_groups'));
             
             $user_groups = $INFO['userinfo']['grps'];
-            $plugin_groups = split(';', $conf_groups);
+            $plugin_groups = explode(';', $conf_groups);
             
             if ((strlen($conf_groups) > 0) && (count($plugin_groups) > 0)) {
                 if (isset($user_groups) && is_array($user_groups)) {
@@ -111,11 +118,20 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
             }
             
             
+            
             $title = $renderer->_xmlEntities($data[0]);
             $dID = cleanID($title);
             
             $rows = $data[2];
             $columns = $data[1];
+            $opt = $data[3];
+            
+            $showempty = preg_match("#\bshowempty\b#", $opt);
+            $colongroups = preg_match("#\bcolongroups\b#", $opt);
+            $closed = preg_match("#\bclosed\b#", $opt);
+            if ($closed) { $write_access = 0; }
+            
+
             
             $rows_count = count($rows);
             $columns_count = count($columns);
@@ -136,7 +152,7 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
             // render form
             $renderer->doc  .= '<form id="btable__form__'.$dID.'" '.
                                     'method="post" '.
-                                    'action="'.script().'" '.
+                                    'action="'.script().'#btable_scroll" '.
                                     'accept-charset="'.$this->getLang('encoding').'">';
 
             $renderer->doc .= '    <input type="hidden" name="do" value="show" />';
@@ -190,8 +206,10 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
             }
             
             // sort rows
-            ksort ($doodle);
-            
+            if ($doodle) {
+                ksort($doodle);
+            }               
+
             // start outputing the data
             $renderer->table_open();
             
@@ -250,7 +268,6 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
             
             $renderer->tablerow_close();
             
-            
             // display results
             if (is_array($doodle) && count($doodle) >= 1) {
                 
@@ -260,9 +277,12 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
                         $selectable_rows[$i] = $row;
                         $i++;
                     }
+                    if ($showempty && $row && !$doodle[$row]) {
+                        $doodle[$row] = array();
+                    }
                 }
-                
-                $renderer->doc .= $this->_doodleResults($dID, $doodle, $columns, $columns_count, $rows_count, $change_row, $write_access, $colspan);
+                if ($showempty) { ksort($doodle); }
+                $renderer->doc .= $this->_doodleResults($dID, $doodle, $columns, $columns_count, $rows_count, $change_row, $write_access, $colspan, $colongroups);
                 
             } else {
             
@@ -294,30 +314,61 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
     }
     
     
-    function _doodleResults($dID, $doodle, $columns, $columns_count, $total_rows, $change_row, $allow_changes, $colspan) {
+    function _doodleResults($dID, $doodle, $columns, $columns_count, $total_rows, $change_row, $allow_changes, $colspan, $colongroups) {
         
         global $ID;
         
-
         $ret   = '';
         $count = array();
         $rows  = array_keys($doodle);
         
+        $lastcolgroup = "";
         // render table entrys
         foreach ($rows as $row) {
+
+            // seperate groups names with ":" of option "colongroups" is set.
+           $colg = ""; $name = $row;
+           $groupchange = FALSE;
+            if ($colongroups) {
+                list($colg, $name) = explode(":", $row, 2);
+                if ($colg && !$name) { $name = $colg; } /* no ":" in name */
+
+                if ($colg == $lastcolgroup) {
+                    $colg = ""; // do not repeat.
+                    $groupchange = FALSE;
+                } else {
+                    $lastcolgroup = $colg;
+                    $groupchange = TRUE;
+                }
+            }
+
+
+            if ($colongroups && $groupchange) {
+            $ret .= '<tr>' . "\n";
+            $ret .= '  <th colspan="' . $colspan . '" style="padding-bottom: 0;">' . $colg . '</td>' . "\n";
+            $ret .= '</tr>' . "\n";
+                
+            }
             
-            $ret .= '<tr>';
+            $ret .= '<tr>' . "\n";
             
             $ret .= '  <td class="rightalign">';
+            
             if ($allow_changes) {
+            /*
                 $ret .= '<input class="button" '.
                                'type="submit" '.
                                'name="'.$dID.'-change" '.
-                               'value="'.$row.'" />';
+                               'value="'.$name.'" >';
+            */
+                $ret .= '<button class="button" style="width:100%" '.
+                               'type="submit" '.
+                               'name="'.$dID.'-change" '.
+                               'value="'.$row.'" >' . $name . "</button>";
             } else {
-                $ret .= $row;
+                $ret .= $name;
             }
-            $ret .= '  </td>';
+            $ret .= "  </td>\n";
 
             
             if (($row != $change_row) || !$allow_changes) {
@@ -343,7 +394,7 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
                         $title = '&nbsp;';
                     }
                     
-                    $ret .= '<td class="'.$class.'">'.$title.'</td>';
+                    $ret .= '  <td class="'.$class.'">'.$title."</td>\n";
                 }
                 
             } else {
@@ -363,32 +414,39 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
                         $value = '';
                     }
                     
-                    $ret .= '<td class="'.$class.'">';
+                    $ret .= '  <td id="btable_scroll" class="'.$class.'">';
                     $ret .= '    <input type="checkbox" '.
                                        'name="'.$dID.'-column'.$i.'" '.
                                        'value="1" '.
                                        $value.' />';
-                    $ret .= '</td>';
+                    $ret .= "</td>\n";
                 }
             }
 
-            if ($allow_changes) {
-                $ret .= '    <td>';
-                $ret .= '        <input type="image" '.
-                                       'name="'.$dID.'-delete" '.
+            if (($row == $change_row) && $allow_changes) {
+                $ret .= '  <td>';
+                $ret  .= "<input type='hidden' name='$dID-delete' value='$row'>";
+                $ret .= '      <input class="button" '.
+                                     'type="submit" '.
+                                     'name="'.$dID.'-add" '.
+                                     'value="'.$this->getLang('btable_btn_change').'" />';
+                $ret .= '        oder l&ouml;schen: <input type="image" '.
+                                       'name="'.$dID.'-deletebutton" '.
                                        'value="'.$row.'" '.
-                                       'src="'.DOKU_BASE.'lib/images/del.png" '.
+                                       'src="'.DOKU_BASE.'lib/plugins/btable/del.png'.'" '.
                                        'alt="'.$this->getLang('btable_btn_delete').'" />';
-                $ret .= '    </td>';
+                $ret .= "    </td>\n";
+            } else {
+                $ret .= "  <td>&nbsp;</td>\n";
             }
-            $ret .= '</tr>';
+            $ret .= "</tr>\n";
         }
         
         if ($this->getConf('btable_show_ratio') == true) {
         
             // render attendance factor
             $ret .= '<tr>';
-            $ret .= '  <td>'.$this->getLang('btable_summary').'</td>';
+            $ret .= "  <td>".$this->getLang('btable_summary').'</td>';
             
             $rows_count = count($rows);
             
@@ -449,8 +507,10 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
                     $ret .= '  <tr>';
                     
                     // row selection (combobox)
-                    $ret .= '    <td class="rightalign">';
-                    $ret .= '      <select name="row" size="1" style="width: '.$max_row_length.'em;">';
+                    
+                    $ret .= "    <td class='rightalign'>";
+                    $ret .= '      <select name="row" size="1">';
+                    // $ret .= '      <select name="row" size="1" style="width: '.$max_row_length.'em;">';
                     
                     for ($i = 0; $i < $rows_count; $i++) {
                         if ($i == 0) {
