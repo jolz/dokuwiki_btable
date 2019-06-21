@@ -1,0 +1,7 @@
+base   btable2
+author jolZ
+email  jolz@freenet.de
+date   2019-06-20
+name   Boolean Table 2 (modified Doodle Plugin)
+desc   Successor of btable plugin, doodle-like polls without authentication
+url    https://www.dokuwiki.org/plugin:btable2
