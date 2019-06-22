@@ -155,12 +155,15 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
             $renderer->doc  .= '<form id="btable__form__'.$dID.'" '.
                                     'method="post" '.
                                     'action="'.script().'#btable_scroll" '.
-                                    'accept-charset="'.$this->getLang('encoding').'">';
+                                    'accept-charset="'.$this->getLang('encoding').'">' . "\n";
 
-            $renderer->doc .= '    <input type="hidden" name="do" value="show" />';
-            $renderer->doc .= '    <input type="hidden" name="id" value="'.$ID.'" />';
+            // see https://www.dokuwiki.org/devel:security?#prevent_csrf        
+            $renderer->doc .= '     <input type="hidden" name="sectok" value="' . getSecurityToken() . '" />' . "\n";
+            
+            $renderer->doc .= '    <input type="hidden" name="do" value="show" />' . "\n";
+            $renderer->doc .= '    <input type="hidden" name="id" value="'.$ID.'" />' . "\n";
 
-            if (($submit = $_REQUEST[$dID.'-add']) && $write_access) {
+            if (($submit = $_REQUEST[$dID.'-add']) && $write_access &&  checkSecurityToken()) {
                 
                 // user has changed/added values -> update results
                 
@@ -186,7 +189,7 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
                 fwrite($fh, serialize($doodle));
                 fclose($fh);
                 
-            } else if (($submit = $_REQUEST[$dID.'-delete']) && $write_access) {
+            } else if (($submit = $_REQUEST[$dID.'-delete']) && $write_access && checkSecurityToken()) {
                 
                 // user has just deleted a row -> update results
                 $row = trim($submit);
@@ -201,7 +204,7 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
                 fwrite($fh, serialize($doodle));
                 fclose($fh);
             
-            } else if (($submit = $_REQUEST[$dID.'-change']) && $write_access) {
+            } else if (($submit = $_REQUEST[$dID.'-change']) && $write_access && checkSecurityToken()) {
                 
                 // user want to change a row
                 $change_row = trim($submit);
