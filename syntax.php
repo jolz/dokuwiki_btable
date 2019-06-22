@@ -74,9 +74,11 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
         // get ids and dates
         list(, $ids) = preg_split('#(\S|\s|\n|\r)*<columns>(\s|\n|\r)*#u', $first);
         list($dates) = preg_split('#(\s|\n|\r)*<\/rows>(\s|\n|\r)*#u', $second);
-        
-        $ids = explode('^', $ids);
-        $dates = explode('^', $dates);
+
+        // $ids = explode('^', $ids);
+        $ids = preg_split('/[\^\n]/', $ids);
+        // $dates = explode('^', $dates);
+        $dates =preg_split('/[\^\n]/', $dates); # seperate by "^" or newline
         
         // remove whitespaces
         for($i = 0; $i < count($ids); $i++) {
