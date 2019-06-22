@@ -438,7 +438,7 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
                 $ret .= '        oder l&ouml;schen: <input type="image" '.
                                        'name="'.$dID.'-deletebutton" '.
                                        'value="'.$row.'" '.
-                                       'src="'.DOKU_BASE.'lib/plugins/btable/del.png'.'" '.
+                                       'src="'.DOKU_BASE.'lib/plugins/btable2/del.png'.'" '.
                                        'alt="'.$this->getLang('btable_btn_delete').'" />';
                 $ret .= "    </td>\n";
             } else {
