@@ -15,14 +15,15 @@ require_once(DOKU_PLUGIN.'syntax.php');
  * All DokuWiki plugins to extend the parser/rendering mechanism
  * need to inherit from this class
  */
-class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
     
     /**
      * return some info
      */
+     /*
     function getInfo(){
         return array(
-            'author' => 'Jolz, Oliver Horst',
+            'author' => 'Jolz',
             'email'  => 'jolz@freenet.de',
             'date'   => '2019-06-20',
             'name'   => 'Boolean Table 2 (modified Doodle Plugin)',
@@ -30,6 +31,7 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
             'url'    => 'http://wiki.splitbrain.org/plugin:btable2',
         );
     }
+    */
     
     function getType(){ return 'substition';}
     function getPType(){ return 'block';}
@@ -39,7 +41,7 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
      * Connect pattern to lexer
      */
     function connectTo($mode){
-        $this->Lexer->addSpecialPattern('<btable.*?>.+?</btable>', $mode, 'plugin_btable');
+        $this->Lexer->addSpecialPattern('<btable.*?>.+?</btable>', $mode, 'plugin_btable2');
     }
     
     
@@ -47,7 +49,6 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
      * Handle the match
      */
     function handle($match, $state, $pos, Doku_Handler $handler){
-        
         // strip markup
         $match = substr($match, 8, -9);
         
@@ -85,7 +86,6 @@ class syntax_plugin_btable extends DokuWiki_Syntax_Plugin {
         for($i = 0; $i < count($dates); $i++) {
             $dates[$i] = trim($dates[$i]);
         }
-        
         
         return array(trim($title), $ids, $dates, $opt);
     }
