@@ -1,0 +1,19 @@
+<btable "2019:06:rehersal">
+<opt>showempty,colongroups</opt>
+  <columns>
+5.
+12.
+19.
+26.  
+  </columns>
+  <rows>
+Singer: one
+Singer: two
+Singer: three
+Band: Guitar 1
+Band: Guitar 2
+Band: Drums
+Band: Keys
+Band: Bass
+  </rows>
+</btable>
