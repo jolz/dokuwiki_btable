@@ -1,4 +1,4 @@
-# dokuwiki_btable
+# dokuwiki_btable2
 doodle-like polls as plugin for dokuwiki. dokuwiki-page: https://www.dokuwiki.org/plugin:btable2
 
 successor of [btable](https://www.dokuwiki.org/plugin:btable) by Oliver Horst.
