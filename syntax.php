@@ -218,7 +218,7 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
             // start outputing the data
             $renderer->table_open();
             
-            if (count($doodle) >= 1) {
+            if ($doodle && count($doodle) >= 1) {
                 
                 $add_delete_row = 1;
                 
@@ -253,7 +253,7 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
             // render column titles
             $renderer->tablerow_open();
             
-            if ($write_access || (count($doodle) >= 1)) {
+            if ($write_access || ($doodle && (count($doodle) >= 1))) {
                 $renderer->tableheader_open();
                 $renderer->doc .= $this->getLang('btable_header');
                 $renderer->tableheader_close();
@@ -265,7 +265,7 @@ class syntax_plugin_btable2 extends DokuWiki_Syntax_Plugin {
                 $renderer->tableheader_close();
             }
             
-            if ($write_access && (count($doodle) >= 1)) {
+            if ($write_access && ($doodle && (count($doodle) >= 1))) {
                 $renderer->tableheader_open();
                 $renderer->doc .= $this->getLang('btable_header_del');
                 $renderer->tableheader_close();

@@ -50,6 +50,8 @@ Band: Bass
    - row names seperated by "^" or "\n" (newline)
 
 # Added Features since btable2
+- Version 2023-03-28 (bugfix)
+  - php8 compatible
 - Version 2019-06-22 (first release)
   - php7 compatible
   - compatible to newer dokuwiki
